@@ -20,9 +20,14 @@ function Header() {
     setMenuOpen(!menuOpen);
   };
 
+  const [categoryList, setCategoryList] = useState([]);
+  useEffect(() => {
+    getCategoryList();
+  }, []);
+
   const getCategoryList = () => {
     GlobalApi.getCategory().then((res) => {
-      console.log(res.data.data);
+      setCategoryList(res.data.data);
     });
   };
 
@@ -65,10 +70,24 @@ function Header() {
               <DropdownMenuContent>
                 <DropdownMenuLabel>Categories</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Fruits</DropdownMenuItem>
-                <DropdownMenuItem>Vegetables</DropdownMenuItem>
-                <DropdownMenuItem>Dairy</DropdownMenuItem>
-                <DropdownMenuItem>Snacks</DropdownMenuItem>
+                {categoryList.map((category) => (
+                  <DropdownMenuItem
+                    key={category.id}
+                    className="flex gap-2 items-center"
+                  >
+                    <Image
+                      src={
+                        process.env.NEXT_PUBLIC_BACKEND_BASE_URL +
+                        category?.icon?.url
+                      }
+                      unoptimized={true}
+                      width={30}
+                      height={30}
+                      alt={category.name}
+                    />
+                    {category.name}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -126,12 +145,13 @@ function Header() {
               <DropdownMenuContent>
                 <DropdownMenuLabel>Categories</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Fruits</DropdownMenuItem>
-                <DropdownMenuItem>Vegetables</DropdownMenuItem>
-                <DropdownMenuItem>Dairy</DropdownMenuItem>
-                <DropdownMenuItem>Snacks</DropdownMenuItem>
+                {categoryList.map((category) => (
+                  <DropdownMenuItem key={category.id}>
+                    {category.name}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
-            </DropdownMenu>{" "}
+            </DropdownMenu>
           </div>
 
           {/* Search bar mobile */}
