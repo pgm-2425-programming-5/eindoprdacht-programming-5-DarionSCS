@@ -32,7 +32,6 @@ function ProductItem({ product }) {
       {/* Product Information */}
       <h3 className="mt-4 text-lg font-medium text-gray-800">{product.name}</h3>
 
-
       {/* Spacer for consistent alignment */}
       <div className="flex-grow"></div>
 

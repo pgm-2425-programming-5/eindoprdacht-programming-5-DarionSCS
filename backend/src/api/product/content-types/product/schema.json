@@ -45,6 +45,12 @@
     },
     "slug": {
       "type": "uid"
+    },
+    "user_carts": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::user-cart.user-cart",
+      "mappedBy": "products"
     }
   }
 }

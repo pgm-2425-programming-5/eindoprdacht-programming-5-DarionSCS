@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-function CategoryList({ categoryList }) {
+function TopCategoryList({ categoryList, selectedCategory }) {
   return (
     <div className="mt-8 px-4 ">
       <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
@@ -12,9 +12,11 @@ function CategoryList({ categoryList }) {
         {Array.isArray(categoryList.data) &&
           categoryList.data.map((category) => (
             <Link
-              href={"/product-category/" + category.name}
+              href={`/product-category/${category.name}`}
               key={category.id}
-              className="flex flex-col items-center bg-white p-4 rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow duration-200 ease-in-out transform hover:-translate-y-1"
+              className={`flex flex-col items-center bg-white p-4 rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow duration-200 ease-in-out transform hover:-translate-y-1 ${
+                selectedCategory === category.name ? "bg-black text-white" : ""
+              }`}
             >
               <Image
                 src={
@@ -35,4 +37,4 @@ function CategoryList({ categoryList }) {
   );
 }
 
-export default CategoryList;
+export default TopCategoryList;
