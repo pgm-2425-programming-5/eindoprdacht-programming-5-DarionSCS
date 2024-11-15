@@ -244,7 +244,9 @@ function Header() {
                   <DropdownMenuItem onClick={handleLogout}>
                     Logout
                   </DropdownMenuItem>
-                  <DropdownMenuItem>My Orders</DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="/my-order">My Orders</Link>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </span>
