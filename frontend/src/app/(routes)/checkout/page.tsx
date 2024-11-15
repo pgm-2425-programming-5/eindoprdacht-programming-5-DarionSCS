@@ -1,52 +1,114 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 import GlobalApi from "@/app/_utils/GlobalApi";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-function CheckOut() {
+function Checkout() {
+  const [jwt, setJwt] = useState(null);
+  const [user, setUser] = useState(null);
   const [cartItemList, setCartItemList] = useState([]);
   const [subtotal, setSubtotal] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalCartItem, setTotalCartItem] = useState(0);
+
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
-    // Fetch cart items from the API
-    const fetchCartItems = async () => {
-      const jwt = sessionStorage.getItem("jwt");
-      const user = JSON.parse(sessionStorage.getItem("user"));
+    if (typeof window !== "undefined") {
+      const token = sessionStorage.getItem("jwt");
+      const userData = JSON.parse(sessionStorage.getItem("user"));
 
+      if (!token) {
+        router.push("/sign-in");
+        return;
+      }
+
+      setJwt(token);
+      setUser(userData);
+    }
+  }, [router]);
+
+  // Fetch cart items and calculate totals
+  useEffect(() => {
+    const fetchCartItems = async () => {
       if (jwt && user) {
         const items = await GlobalApi.getCartItems(user.id, jwt);
         setCartItemList(items);
+        setTotalCartItem(items.length);
 
-        // Calculate subtotal
         const calculatedSubtotal = items.reduce(
           (total, item) => total + item.quantity * item.pricePerUnit,
           0
         );
         setSubtotal(calculatedSubtotal.toFixed(2));
+
+        const calculatedTotal = (calculatedSubtotal * 1.21 + 5).toFixed(2);
+        setTotalAmount(calculatedTotal);
       }
     };
 
     fetchCartItems();
-  }, []);
+  }, [jwt, user]);
+
+  const onApprove = (data) => {
+    const payload = {
+      data: {
+        paymentId: data?.orderID?.toString(),
+        totalOrderAmount: totalAmount,
+        fullName,
+        phone,
+        address,
+        orderItemList: cartItemList,
+        userId: user.id,
+      },
+    };
+
+    GlobalApi.createOrder(payload, jwt).then(() => {
+      toast.success("Order placed successfully!");
+      cartItemList.forEach((item) => {
+        GlobalApi.deleteCartItem(item.documentId, jwt);
+      });
+      router.replace("/order-confirmation");
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-green-50 flex flex-col items-center">
-      {/* Header */}
-      <header className="bg-green-700 text-white w-full py-4">
-        <div className="container mx-auto flex items-center justify-between px-4">
-          <h1 className="text-2xl font-bold">🍎 Grocery Checkout</h1>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto flex flex-col lg:flex-row gap-10 mt-10 px-4">
-        {/* Cart Summary Section */}
-        <section className="bg-white rounded-lg shadow-lg p-6 flex-1">
-          <h2 className="text-2xl font-semibold text-green-700 mb-4">
-            Your Cart
-          </h2>
-          <div className="space-y-4">
+    <div>
+      <h2 className="p-3 bg-primary text-xl font-bold text-center text-white">
+        Checkout
+      </h2>
+      <div className="p-5 px-5 md:px-10 grid grid-cols-1 md:grid-cols-3 py-8">
+        {/* Billing Details */}
+        <div className="md:col-span-2 mx-20">
+          <h2 className="font-bold text-3xl">Billing Details</h2>
+          <div className="grid grid-cols-2 gap-10 mt-3">
+            <input
+              className="border rounded-md p-3 w-full"
+              placeholder="Full Name"
+              onChange={(e) => setFullName(e.target.value)}
+            />
+            <input
+              className="border rounded-md p-3 w-full"
+              placeholder="Phone"
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+          <div className="mt-3">
+            <input
+              className="border rounded-md p-3 w-full"
+              placeholder="Address"
+              onChange={(e) => setAddress(e.target.value)}
+            />
+          </div>
+          <h2 className="font-bold text-2xl mt-6">Your Cart</h2>
+          <div className="space-y-4 mt-4">
             {cartItemList.map((item, index) => (
               <div
                 key={index}
@@ -73,75 +135,53 @@ function CheckOut() {
               </div>
             ))}
           </div>
+        </div>
 
-          {/* Subtotal */}
-          <div className="mt-6 border-t pt-4">
-            <div className="flex justify-between text-lg font-bold text-green-800">
-              <p>Subtotal</p>
-              <p>${subtotal}</p>
-            </div>
-            <div className="flex justify-between text-lg font-bold text-green-800">
-              <p>Delivery</p>
-              <p>$1.50</p>
-            </div>
-            <div className="flex justify-between text-2xl font-bold text-green-900 mt-4">
-              <p>Total</p>
-              <p>${(parseFloat(subtotal) + 2.5).toFixed(2)}</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Checkout Form Section */}
-        <section className="bg-white rounded-lg shadow-lg p-6 flex-1">
-          <h2 className="text-2xl font-semibold text-green-700 mb-4">
-            Delivery Details
+        {/* Cart Summary */}
+        <div className="mx-10 border">
+          <h2 className="p-3 bg-gray-200 font-bold text-center">
+            Total Cart ({totalCartItem})
           </h2>
-          <form className="space-y-6">
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Name
-              </label>
-              <input
-                type="text"
-                className="w-full border border-green-300 rounded-md p-3 focus:ring-2 focus:ring-green-500 outline-none"
-                placeholder="Enter your name"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Address
-              </label>
-              <input
-                type="text"
-                className="w-full border border-green-300 rounded-md p-3 focus:ring-2 focus:ring-green-500 outline-none"
-                placeholder="Enter your address"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Phone
-              </label>
-              <input
-                type="tel"
-                className="w-full border border-green-300 rounded-md p-3 focus:ring-2 focus:ring-green-500 outline-none"
-                placeholder="Enter your phone number"
-              />
-            </div>
-            <Button className="w-full bg-green-700 text-white py-3 rounded-md hover:bg-green-800 transition duration-300">
-              Place Order
-            </Button>
-          </form>
-        </section>
-      </main>
+          <div className="p-4 flex flex-col gap-4">
+            <h2 className="font-bold flex justify-between">
+              Subtotal: <span>${subtotal}</span>
+            </h2>
+            <hr />
+            <h2 className="flex justify-between">
+              Delivery: <span>$5.00</span>
+            </h2>
+            <h2 className="flex justify-between">
+              Tax (21%): <span>${(subtotal * 0.21).toFixed(2)}</span>
+            </h2>
+            <hr />
+            <h2 className="font-bold flex justify-between">
+              Total: <span>${totalAmount}</span>
+            </h2>
 
-      {/* Footer */}
-      <footer className="bg-green-700 text-white w-full py-4 mt-auto">
-        <p className="text-center">
-          &copy; 2024 Grocery Store. All rights reserved.
-        </p>
-      </footer>
+            {totalAmount > 15 && (
+              <PayPalButtons
+                disabled={!(fullName && phone && address)}
+                style={{ layout: "horizontal" }}
+                onApprove={onApprove}
+                createOrder={(data, actions) => {
+                  return actions.order.create({
+                    purchase_units: [
+                      {
+                        amount: {
+                          value: totalAmount,
+                          currency_code: "USD",
+                        },
+                      },
+                    ],
+                  });
+                }}
+              />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default CheckOut;
+export default Checkout;
