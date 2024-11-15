@@ -168,7 +168,7 @@ function Checkout() {
               *Minimum order amount is $8
             </span>
             <Button onClick={() => onApprove({ paymentId: 123 })}>
-              TEST with this without paying
+              TEST without paypal
             </Button>
             {totalAmount > 8 && (
               <PayPalButtons

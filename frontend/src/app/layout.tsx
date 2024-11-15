@@ -6,6 +6,7 @@ import { UpdateCartContext } from "./_context/UpdateCartContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { Toaster } from "sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -37,6 +38,7 @@ export default function RootLayout({
             <Header />
             {children}
             <Footer />
+            <Toaster />
           </UpdateCartContext.Provider>
         </body>
       </html>

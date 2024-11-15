@@ -185,10 +185,16 @@ function Header() {
             Home
           </Link>
           <Link
-            href="/products"
+            href="/about"
             className="text-lg font-bold hover:text-green-300"
           >
-            Products
+            About
+          </Link>
+          <Link
+            href="/admin"
+            className="text-lg font-bold hover:text-green-300"
+          >
+            Admin
           </Link>
 
           {/* Cart */}
@@ -241,11 +247,14 @@ function Header() {
                   {user.username}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={handleLogout}>
-                    Logout
-                  </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link href="/my-order">My Orders</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

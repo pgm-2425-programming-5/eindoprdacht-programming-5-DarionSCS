@@ -16,11 +16,12 @@ function ProductItem({ product }) {
   return (
     <div className="flex flex-col items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 ease-in-out h-full">
       {/* Product Image */}
-      {product.images[0] && (
+
+      {product?.images[0] && (
         <Image
           src={
             process.env.NEXT_PUBLIC_BACKEND_BASE_URL +
-            product.images[0].formats?.small?.url
+            product?.images[0].formats?.small?.url
           }
           alt={product.name}
           width={150}

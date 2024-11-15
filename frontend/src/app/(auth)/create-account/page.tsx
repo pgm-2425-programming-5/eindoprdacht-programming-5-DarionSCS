@@ -1,12 +1,10 @@
 "use client";
 import GlobalApi from "@/app/_utils/GlobalApi";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
 
 function CreateAccount() {
   const [username, setUsername] = useState("");
@@ -20,23 +18,33 @@ function CreateAccount() {
     if (jwt) {
       router.push("/");
     }
-  }, []);
+  }, [router]);
 
-  const onCreateAccount = () => {
+  const onCreateAccount = async () => {
     setLoader(true);
-    GlobalApi.registerUser(username, email, password).then(
-      (resp) => {
-        sessionStorage.setItem("user", JSON.stringify(resp.data.user));
-        sessionStorage.setItem("jwt", resp.data.jwt);
-        toast("Account Created Successfully");
-        router.push("/");
+
+    try {
+      // Check if the username is already taken
+      const existingUsers = await GlobalApi.checkUsername(username);
+      if (existingUsers.length > 0) {
+        toast.error("Username is already taken.");
         setLoader(false);
-      },
-      (e) => {
-        toast(e?.response?.data?.error?.message || "Registration failed");
-        setLoader(false);
+        return;
       }
-    );
+
+      // Proceed with registration if username is available
+      const resp = await GlobalApi.registerUser(username, email, password);
+      sessionStorage.setItem("user", JSON.stringify(resp.data.user));
+      sessionStorage.setItem("jwt", resp.data.jwt);
+      toast.success("Account Created Successfully!");
+      router.push("/");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.error?.message || "Registration failed."
+      );
+    } finally {
+      setLoader(false);
+    }
   };
 
   return (
@@ -67,18 +75,18 @@ function CreateAccount() {
             }}
             className="space-y-6"
           >
-            {/* Name Input */}
+            {/* Username Input */}
             <div>
               <label
-                htmlFor="name"
+                htmlFor="username"
                 className="block text-gray-700 font-medium mb-1"
               >
-                Name
+                Username
               </label>
               <input
                 type="text"
-                id="name"
-                name="name"
+                id="username"
+                name="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -127,9 +135,12 @@ function CreateAccount() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition duration-150"
+              className={`w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition duration-150 ${
+                loader ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loader}
             >
-              Create Account
+              {loader ? "Creating Account..." : "Create Account"}
             </button>
             <Link
               href="/sign-in"
