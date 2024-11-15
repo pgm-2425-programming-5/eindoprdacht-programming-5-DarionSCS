@@ -55,6 +55,10 @@ function AboutPage() {
         <ol className="list-decimal pl-5 text-gray-700">
           <li>"npm i" in the frontend folder and then "npm run dev"</li>
           <li>"npm run develop" in the backend folder to start strapi</li>
+          <li>
+            your ip adress must be put in "next.config.mjs" and .env.local if
+            you are hosting locally
+          </li>
         </ol>
       </section>
     </div>
