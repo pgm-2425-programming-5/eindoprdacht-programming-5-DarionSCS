@@ -80,8 +80,7 @@ function Checkout() {
       toast.success("Order placed successfully!");
       cartItemList.forEach((item) => {
         GlobalApi.deleteCartItem(item.documentId, jwt);
-        console.log("Deleted item:", item.documentId);
-        router.push("/");
+        router.replace("/order-confirmation");
       });
     });
   };
@@ -168,7 +167,9 @@ function Checkout() {
             <span className="text-sm text-gray-500">
               *Minimum order amount is $8
             </span>
-            <Button onClick={() => onApprove({ paymentId: 123 })}>Test</Button>
+            <Button onClick={() => onApprove({ paymentId: 123 })}>
+              TEST with this without paying
+            </Button>
             {totalAmount > 8 && (
               <PayPalButtons
                 disabled={!(fullName && phone && address)}
