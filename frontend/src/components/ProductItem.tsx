@@ -16,18 +16,18 @@ function ProductItem({ product }) {
   return (
     <div className="flex flex-col items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 ease-in-out h-full">
       {/* Product Image */}
-
-      {product?.images[0] && (
+      {product?.images[0]?.formats?.small?.url ? (
         <Image
-          src={
-            process.env.NEXT_PUBLIC_BACKEND_BASE_URL +
-            product?.images[0].formats?.small?.url
-          }
-          alt={product.name}
+          src={`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${product?.images[0].formats?.small?.url}`}
+          alt={product.name || "Product Image"}
           width={150}
           height={150}
           className="h-[150px] rounded-lg object-cover"
         />
+      ) : (
+        <div className="h-[150px] w-[150px] flex items-center justify-center bg-gray-200 rounded-lg">
+          <span className="text-gray-500 text-sm">No Image</span>
+        </div>
       )}
 
       {/* Product Information */}
