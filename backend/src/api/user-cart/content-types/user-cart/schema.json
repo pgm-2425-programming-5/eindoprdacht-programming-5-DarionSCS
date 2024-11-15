@@ -29,10 +29,6 @@
     },
     "userId": {
       "type": "integer"
-    },
-    "hasPaid": {
-      "type": "boolean",
-      "default": false
     }
   }
 }

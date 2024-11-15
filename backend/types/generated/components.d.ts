@@ -3,6 +3,7 @@ import type { Schema, Struct } from '@strapi/strapi';
 export interface OrderedItemOrderedItem extends Struct.ComponentSchema {
   collectionName: 'components_ordered_item_ordered_items';
   info: {
+    description: '';
     displayName: 'OrderedItem';
     icon: 'alien';
   };

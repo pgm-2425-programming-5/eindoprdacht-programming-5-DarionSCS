@@ -5,6 +5,7 @@ import { PayPalButtons } from "@paypal/react-paypal-js";
 import GlobalApi from "@/app/_utils/GlobalApi";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 function Checkout() {
   const [jwt, setJwt] = useState(null);
@@ -60,22 +61,28 @@ function Checkout() {
   const onApprove = (data) => {
     const payload = {
       data: {
-        paymentId: data?.orderID?.toString(),
+        paymentId: data?.paymentId?.toString(),
         totalOrderAmount: totalAmount,
-        fullName,
-        phone,
-        address,
-        orderItemList: cartItemList,
+        fullName: fullName,
+        phone: phone,
+        address: address,
+        orderItemList: cartItemList.map((item) => ({
+          quantity: item.quantity,
+          price: totalAmount, // Map pricePerUnit to price
+          product: item.productDocumentId,
+        })),
         userId: user.id,
       },
     };
+    console.log(payload);
 
     GlobalApi.createOrder(payload, jwt).then(() => {
       toast.success("Order placed successfully!");
       cartItemList.forEach((item) => {
         GlobalApi.deleteCartItem(item.documentId, jwt);
+        console.log("Deleted item:", item.documentId);
+        router.push("/");
       });
-      router.replace("/order-confirmation");
     });
   };
 
@@ -157,8 +164,12 @@ function Checkout() {
             <h2 className="font-bold flex justify-between">
               Total: <span>${totalAmount}</span>
             </h2>
-
-            {totalAmount > 15 && (
+            <hr />
+            <span className="text-sm text-gray-500">
+              *Minimum order amount is $8
+            </span>
+            <Button onClick={() => onApprove({ paymentId: 123 })}>Test</Button>
+            {totalAmount > 8 && (
               <PayPalButtons
                 disabled={!(fullName && phone && address)}
                 style={{ layout: "horizontal" }}
