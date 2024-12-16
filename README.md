@@ -1,1 +1,9 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/KVB3ujZF)
+This is an online grocery store website made using strapi, nextjs and the paypal api.
+
+Features:
+- Authentication: login/register
+- CRUD interface for managing products and users
+- Cart linked to the logged in user
+- Profile management (change password or delete account)
+- Filtering products based on category
+
